@@ -29,7 +29,7 @@ namespace Utilla.Models
         /// <summary>
         /// Paintbrawl gamemode, a gamemode that lets you play a game of paintball with two or more players.
         /// </summary>
-        PaintbrawlBattle
+        Ambush
 	}
 
 	public class Gamemode {

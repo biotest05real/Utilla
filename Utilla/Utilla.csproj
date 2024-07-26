@@ -111,6 +111,9 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(GameAssemblyPath)\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+	<Reference Include="Unity.TextMeshPro">
+         <HintPath>$(GameAssemblyPath)\Unity.TextMeshPro.dll</HintPath>
+	</Reference>
     <Reference Include="UnityEngine.CrashReportingModule">
       <HintPath>$(GameAssemblyPath)\UnityEngine.CrashReportingModule.dll</HintPath>
     </Reference>

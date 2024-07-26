@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Linq;
 using GorillaNetworking;
 using Utilla.Models;
+using TMPro;
 using GorillaExtensions;
 
 namespace Utilla
@@ -15,23 +16,27 @@ namespace Utilla
 
 		ModeSelectButton[] modeSelectButtons = Array.Empty<ModeSelectButton>();
 
-		Text gamemodesText;
+		List<TextMeshPro> gamemodesText = new List<TextMeshPro>();
 
-		int page;
+        int page;
 
-		public void Initialize(Transform parent, Transform buttonParent, Transform gamemodesList)
+		public void Initialize(Transform parent, Transform buttonParent, List<GameObject> gamemodesList)
 		{
 			transform.parent = parent;
 
 			var buttons = Enumerable.Range(0, PageSize).Select(x => buttonParent.GetChild(x));
 			modeSelectButtons = buttons.Select(x => x.GetComponent<ModeSelectButton>()).ToArray();
 
-			gamemodesText = gamemodesList.gameObject.GetComponent<Text>();
-			gamemodesText.enabled = true;
-			gamemodesText.lineSpacing = 1.06f * 1.2f;
-			gamemodesText.transform.localScale *= 0.85f;
-			gamemodesText.transform.position += gamemodesText.transform.right * 0.05f;
-			gamemodesText.horizontalOverflow = HorizontalWrapMode.Overflow;
+			foreach (GameObject gamemode in gamemodesList)
+			{
+				TextMeshPro title = gamemode.GetComponentInChildren<TextMeshPro>();
+                gamemodesText.Add(title);
+				title.enabled = true;
+				title.lineSpacing = 1.06f * 1.2f;
+				title.transform.localScale *= 0.85f;
+				title.transform.position += title.transform.right * 0.05f;
+				title.overflowMode = TextOverflowModes.Overflow; // HorizontalWrapMode.Overflow;
+			}
 
 			CreatePageButtons(buttons.First().gameObject);
 
@@ -55,7 +60,9 @@ namespace Utilla
 				button.transform.localScale = Vector3.one * 0.1427168f; // shouldn't hurt anyone for now 
 
 				button.transform.GetChild(0).gameObject.SetActive(true);
-				Text buttonText = button.GetComponentInChildren<Text>();
+				button.transform.GetComponentInChildren<TextMeshPro>().gameObject.SetActive(false);
+
+                Text buttonText = button.GetComponentInChildren<Text>();
 				if (buttonText != null)
 				{
 					buttonText.text = text;
@@ -64,7 +71,6 @@ namespace Utilla
 
 				GameObject.Destroy(button.GetComponent<ModeSelectButton>());
 				button.AddComponent<PageButton>().onPressed += onPressed;
-				button.GetComponent<PageButton>().onPressButton = new UnityEngine.Events.UnityEvent();
 
 				if (!button.GetComponentInParent<Canvas>())
 				{
@@ -76,10 +82,10 @@ namespace Utilla
 			}
 
 			GameObject nextPageButton = CreatePageButton("-->", NextPage);
-			nextPageButton.transform.localPosition = new Vector3(-0.575f, nextPageButton.transform.position.y, nextPageButton.transform.position.z);
+			nextPageButton.transform.localPosition = new Vector3(-0.775f, 0.0028f, -0.0104f);
 
 			GameObject previousPageButton = CreatePageButton("<--", PreviousPage);
-			previousPageButton.transform.localPosition = new Vector3(-0.575f, -0.318f, previousPageButton.transform.position.z);
+			previousPageButton.transform.localPosition = new Vector3(-0.775f, -0.618f, -0.0199f);
 
 			Destroy(cube);
 
@@ -93,16 +99,18 @@ namespace Utilla
 		{
 			if (page < GamemodeManager.Instance.PageCount - 1)
 			{
+				Debug.Log("pressed the next page");
 				ShowPage(page + 1);
-			}
+            }
 		}
 
 		public void PreviousPage()
 		{
 			if (page > 0)
 			{
+				Debug.Log("pressed the previous page");
 				ShowPage(page - 1);
-			}
+            }
 		}
 
 		void ShowPage(int page)
@@ -110,7 +118,7 @@ namespace Utilla
 			this.page = page;
 			List<Gamemode> currentGamemodes = GamemodeManager.Instance.Gamemodes.Skip(page * PageSize).Take(PageSize).ToList();
 
-			int counter = 0;
+            int counter = 0;
 			for (int i = 0; i < modeSelectButtons.Length; i++)
 			{
 				if (i < currentGamemodes.Count)
@@ -126,14 +134,17 @@ namespace Utilla
 				}
 			}
 
-			string displayText = string.Join("\n", currentGamemodes.Select(x => x.DisplayName));
-			for (int i = 0; i < counter; i++)
-			{
-				displayText += '\n';
-			}
-			gamemodesText.text = displayText;
+            foreach (TextMeshPro gamemodeText in gamemodesText)
+            {
+                gamemodeText.text = currentGamemodes[gamemodesText.IndexOf(gamemodeText)].DisplayName;
+				gamemodeText.enableWordWrapping = false;
+				RectTransform rectTransform = gamemodeText.rectTransform;
+				rectTransform.localPosition = new Vector3(2.4763f, rectTransform.localPosition.y, rectTransform.localPosition.z);
+				rectTransform.sizeDelta = new Vector2(100, rectTransform.sizeDelta.y);
+				gamemodeText.fontSize = 65;
+            }
 
-			GorillaComputer.instance.OnModeSelectButtonPress(GorillaComputer.instance.currentGameMode.Value, GorillaComputer.instance.leftHanded);
-		}
+            GorillaComputer.instance.OnModeSelectButtonPress(GorillaComputer.instance.currentGameMode.Value, GorillaComputer.instance.leftHanded);
+        }
 	}
 }

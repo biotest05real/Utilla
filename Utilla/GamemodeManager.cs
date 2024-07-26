@@ -13,6 +13,7 @@ using BepInEx;
 using HarmonyLib;
 
 using Utilla.Models;
+using GorillaExtensions;
 
 namespace Utilla
 {
@@ -27,15 +28,15 @@ namespace Utilla
 		List<Gamemode> DefaultModdedGamemodes = new List<Gamemode>()
 		{
 			new Gamemode("MODDED_CASUAL", "MODDED CASUAL", BaseGamemode.Casual),
-			new Gamemode("MODDED_DEFAULT", "MODDED", BaseGamemode.Infection),
-			new Gamemode("MODDED_HUNT", "MODDED HUNT", BaseGamemode.Hunt),
-            new Gamemode("MODDED_BATTLE", "MODDED BRAWL", BaseGamemode.PaintbrawlBattle)
+			new Gamemode("MODDED_DEFAULT", "MODDED INFECTION", BaseGamemode.Infection),
+            new Gamemode("MODDED_AMBUSH", "MODDED AMBUSH", BaseGamemode.Ambush),
+			new Gamemode("MODDED_HUNT", "MODDED HUNT", BaseGamemode.Hunt)
         };
 		public List<Gamemode> Gamemodes { get; private set; } = new List<Gamemode>() { 
 			new Gamemode("CASUAL", "CASUAL"),
 			new Gamemode("INFECTION", "INFECTION"),
-			new Gamemode("HUNT", "HUNT"),
-            new Gamemode("BATTLE", "PAINTBRAWL")
+            new Gamemode("AMBUSH", "AMBUSH"),
+            new Gamemode("HUNT", "HUNT"),
         };
 
 		List<PluginInfo> pluginInfos;
@@ -70,42 +71,37 @@ namespace Utilla
 				new GameModeSelectorPath() {
 					name = "TreehouseSelector",
 					buttonPath = "anchor",
-					gamemodesPath = "anchor",
-					transformToFind = "Environment Objects/LocalObjects_Prefab/TreeRoom/TreeRoomInteractables/UI/ModeSelector_Group/Selector Buttons"
+					transformToFind = "Environment Objects/LocalObjects_Prefab/TreeRoom/TreeRoomInteractables/UI/GameModeSelector/Selector Buttons (1)"
                 }
 			},
 			{
 				"Beach",
 				new GameModeSelectorPath() {
 					name = "BeachSelector",
-					buttonPath = "modeselectbox (3)/anchor",
-					gamemodesPath = "UI FOR BEACH COMPUTER",
-					transformToFind = "Beach/BeachComputer"
-				}
+					buttonPath = "anchor",
+					transformToFind = "Environment Objects/LocalObjects_Prefab/ForestToBeach/ForestToBeach_Prefab_V4/BeachComputer/GameModeSelector/Selector Buttons (1)"
+                }
 			},
 			{   "Mountain",
 				new GameModeSelectorPath() {
 					name = "MountainSelector",
-					buttonPath = "Geometry/goodigloo/modeselectbox (1)/anchor",
-					gamemodesPath = "UI/Text",
-					transformToFind = "Mountain"
-				}
+					buttonPath = "anchor",
+					transformToFind = "Mountain/Geometry/goodigloo/GameModeSelector/Selector Buttons (1)"
+                }
 			},
 			{   "Skyjungle",
 				new GameModeSelectorPath() {
 					name = "SkySelector",
 					buttonPath = "anchor",
-					gamemodesPath = "ModeSelectorText",
-					transformToFind = "skyjungle/UI/-- Clouds ModeSelectBox UI --"
-				}
+					transformToFind = "skyjungle/UI/GameModeSelector/Selector Buttons (1)"
+                }
 			},
 			{
 				"Rotating",
 				new GameModeSelectorPath() {
 					name = "RotatingSelector",
 					buttonPath = "anchor",
-					gamemodesPath = "ModeSelectorText",
-					transformToFind = "RotatingMap/SwampLevel/UI (1)/-- Rotating ModeSelectBox UI --"
+					transformToFind = "MetroMain/ComputerArea/GameModeSelector/Selector Buttons (1)"
                 }
 			}
 		};
@@ -164,17 +160,19 @@ namespace Utilla
 					}
 				}
 
-				// gameobject name for the text object changed but might change back after gamemodes is released
-				var GamemodesList = parent.Find(gmPathData.gamemodesPath);
-				foreach (Transform child in GamemodesList) {
-					if (child.gameObject.name.StartsWith("Game Mode List Text ENABLE FOR BETA"))
+				List<GameObject> list = new List<GameObject>();
+
+				foreach(Transform stuff in ButtonParent.GetComponentsInChildren<Transform>())
+				{
+					if (stuff.name == "GameModeSelectorButton(Clone)" || stuff.name == "GameModeSelectorButton (Clone)")
 					{
-						GamemodesList = child;
-						break;
-					}
+						list.Add(stuff.gameObject);
+						Debug.Log(stuff.name);
+						Debug.Log(stuff.gameObject.name);
+                    }
 				}
 
-				selector.Initialize(parent, ButtonParent, GamemodesList);
+				selector.Initialize(parent, ButtonParent, list);
 			}
 			catch (Exception e)
 			{
@@ -302,7 +300,7 @@ namespace Utilla
 					BaseGamemode.Casual => GameModeType.Casual,
 					BaseGamemode.Infection => GameModeType.Infection,
 					BaseGamemode.Hunt => GameModeType.Hunt,
-					BaseGamemode.PaintbrawlBattle => GameModeType.Battle,
+					BaseGamemode.Ambush => GameModeType.Ambush,
 					_ => null
 				};
 

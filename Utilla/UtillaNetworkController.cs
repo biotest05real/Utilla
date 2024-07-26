@@ -48,9 +48,9 @@ namespace Utilla
                 var dict = new Dictionary<string, string> {
 					{ "INFECTION", "INFECTION" },
                     { "CASUAL", "CASUAL"},
+                    { "AMBUSH", "AMBUSH"},
                     { "HUNT", "HUNT" },
-                    { "BATTLE", "PAINTBRAWL"},
-				};
+                };
 
 				foreach (var item in dict)
                 {
